@@ -1,4 +1,16 @@
 <?php
+//
+// Required query params:
+// e.g. check_score.php?teamId=7&eventName=sabres_score
+//
+//	 $_GET['teamId']
+//			7	= Sabres
+//			14	= Lightning
+// 	$_GET['eventName']
+//			lightning_score
+//			sabres_score
+//
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -39,7 +51,7 @@ function checkScore() {
 
 	$notify = false;
 
-	$teamId = 7;
+	$teamId = $_GET['teamId'];
 	dump('$teamId=', $teamId);
 
 	$teamDataUrl = 'https://statsapi.web.nhl.com/api/v1/teams/' . $teamId . '?expand=team.schedule.next';
@@ -97,7 +109,7 @@ function checkScore() {
 
 	if ($notify) {
 		dump('Trigger notification!');
-		$alertData = curl('https://api.particle.io/v1/devices/events', 'name=sabres_score&access_token=7be634f544f6b0f8348308d6b62d01b588453f07&private=true');
+		$alertData = curl('https://api.particle.io/v1/devices/events', 'name=' . $_GET['eventName'] . '&access_token=7be634f544f6b0f8348308d6b62d01b588453f07&private=true');
 		dump('$alertData=', $alertData);
 	} else {
 		dump('Score not changed, not sending notification.');
