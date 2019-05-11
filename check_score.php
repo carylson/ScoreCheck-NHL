@@ -1,16 +1,4 @@
 <?php
-//
-// Required query params:
-// e.g. check_score.php?teamId=7&eventName=sabres_score
-//
-//	 $_GET['teamId']
-//			7	= Sabres
-//			14	= Lightning
-// 	$_GET['eventName']
-//			lightning_score
-//			sabres_score
-//
-
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -62,47 +50,54 @@ function checkScore() {
 	$teamDataJson = json_decode($teamData);
 	if ($teamDataJson !== null) {
 
-		$nextGame = $teamDataJson->teams[0]->nextGameSchedule->dates[0]->games[0];
-		dump('$nextGame=', $nextGame);
+		$nextGameSchedule = $teamDataJson->teams[0]->nextGameSchedule;
+		dump('$nextGameSchedule=', $nextGameSchedule);
 
-		$gameId = $nextGame->gamePk;
-		dump('$gameId=', $gameId);
-		
-		$gameStatus = $nextGame->status->statusCode;
-		dump('$gameStatus=', $gameStatus);
+		if ($nextGameSchedule !== null) {
 
-		$repeatScoreCheck = ($gameStatus === '2' || $gameStatus === '3' || $gameStatus === '4');
-		
-		$homeTeamId = $nextGame->teams->home->team->id;
-		dump('$homeTeamId=', $homeTeamId);
-		
-		$currentScore = $homeTeamId === $teamId ? $nextGame->teams->home->score : $nextGame->teams->away->score ;
-		dump('$currentScore=', $currentScore);
+			$nextGame = $nextGameSchedule->dates[0]->games[0];
+			dump('$nextGame=', $nextGame);
 
-		$fileName = 'games/' . $gameId . '-score.txt';
-		dump('$fileName=', $fileName);
+			$gameId = $nextGame->gamePk;
+			dump('$gameId=', $gameId);
+			
+			$gameStatus = $nextGame->status->statusCode;
+			dump('$gameStatus=', $gameStatus);
 
-		$filePath = str_replace(basename(__FILE__), '', __FILE__);
-		dump('$filePath=', $filePath);
+			$repeatScoreCheck = ($gameStatus === '2' || $gameStatus === '3' || $gameStatus === '4');
+			
+			$homeTeamId = $nextGame->teams->home->team->id;
+			dump('$homeTeamId=', $homeTeamId);
+			
+			$currentScore = $homeTeamId === $teamId ? $nextGame->teams->home->score : $nextGame->teams->away->score ;
+			dump('$currentScore=', $currentScore);
 
-		$file = $filePath . $fileName;
-		dump('$file=', $file);
+			$fileName = 'games/' . $gameId . '-score.txt';
+			dump('$fileName=', $fileName);
 
-		if (!file_exists($file)) {
-			file_put_contents($file, 0);
-			dump('Score file did not exist, creating!');
-		}
+			$filePath = str_replace(basename(__FILE__), '', __FILE__);
+			dump('$filePath=', $filePath);
 
-		$scoreFile = file_get_contents($file);
-		dump('$scoreFile=', $scoreFile);
+			$file = $filePath . $fileName;
+			dump('$file=', $file);
 
-		$lastScore = (int) $scoreFile;
-		dump('$lastScore=', $lastScore);
+			if (!file_exists($file)) {
+				file_put_contents($file, 0);
+				dump('Score file did not exist, creating!');
+			}
 
-		if ($currentScore > $lastScore) {
-			file_put_contents($file, $currentScore);
-			dump('Score changed, updating!');
-			$notify = true;
+			$scoreFile = file_get_contents($file);
+			dump('$scoreFile=', $scoreFile);
+
+			$lastScore = (int) $scoreFile;
+			dump('$lastScore=', $lastScore);
+
+			if ($currentScore > $lastScore) {
+				file_put_contents($file, $currentScore);
+				dump('Score changed, updating!');
+				$notify = true;
+			}
+
 		}
 
 	}
