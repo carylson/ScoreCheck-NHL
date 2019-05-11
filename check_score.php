@@ -50,7 +50,7 @@ function checkScore() {
 	$teamDataJson = json_decode($teamData);
 	if ($teamDataJson !== null) {
 
-		$nextGameSchedule = $teamDataJson->teams[0]->nextGameSchedule;
+		$nextGameSchedule = isset($teamDataJson->teams[0]->nextGameSchedule) ? $teamDataJson->teams[0]->nextGameSchedule : null ;
 		dump('$nextGameSchedule=', $nextGameSchedule);
 
 		if ($nextGameSchedule !== null) {
